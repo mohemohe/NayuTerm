@@ -1,0 +1,53 @@
+﻿<Window x:Class="NayuTerm.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:NayuTerm.Views"
+        xmlns:vm="clr-namespace:NayuTerm.ViewModels"
+        xmlns:behaviors="clr-namespace:NayuTerm.Behaviors"
+        Title="NayuTerm" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" SizeToContent="WidthAndHeight">
+    
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    
+    <i:Interaction.Triggers>
+    
+    	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
+        
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+
+    </i:Interaction.Triggers>
+    
+    <Grid Name="TermGrid" Background="#BF000000" Width="640" Height="480">
+        <ScrollViewer Margin="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+            <i:Interaction.Behaviors>
+                <behaviors:AutoScrollBehavior></behaviors:AutoScrollBehavior>
+            </i:Interaction.Behaviors>
+            <TextBox Text="{Binding FrontBuffer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" SelectionBrush="{x:Null}" Background="{x:Null}" Foreground="White" TextWrapping="Wrap" FontFamily="/NayuTerm;component/#MyricaM M" FontSize="18" AcceptsReturn="True">
+                <i:Interaction.Behaviors>
+                    <l:TextBoxBindingSupportBehavior SelectionStart="{Binding CursorPosition, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                </i:Interaction.Behaviors>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewKeyDown">
+                        <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="PreviewKeyDown"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
+        </ScrollViewer>
+    </Grid>
+</Window>
