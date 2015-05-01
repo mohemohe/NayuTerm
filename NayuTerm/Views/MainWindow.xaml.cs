@@ -35,5 +35,10 @@ namespace NayuTerm.Views
             TermGrid.Width = Screen.PrimaryScreen.WorkingArea.Width;
             TermGrid.Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            Buffer.Focus();
+        }
     }
 }

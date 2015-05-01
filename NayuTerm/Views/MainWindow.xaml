@@ -7,7 +7,7 @@
         xmlns:v="clr-namespace:NayuTerm.Views"
         xmlns:vm="clr-namespace:NayuTerm.ViewModels"
         xmlns:behaviors="clr-namespace:NayuTerm.Behaviors"
-        Title="NayuTerm" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" SizeToContent="WidthAndHeight">
+        Title="NayuTerm" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" SizeToContent="WidthAndHeight" Activated="Window_Activated">
     
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -38,7 +38,7 @@
             <i:Interaction.Behaviors>
                 <behaviors:AutoScrollBehavior></behaviors:AutoScrollBehavior>
             </i:Interaction.Behaviors>
-            <TextBox Text="{Binding FrontBuffer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" SelectionBrush="{x:Null}" Background="{x:Null}" Foreground="White" TextWrapping="Wrap" FontFamily="/NayuTerm;component/#MyricaM M" FontSize="18" AcceptsReturn="True">
+            <TextBox Name="Buffer" Text="{Binding FrontBuffer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" SelectionBrush="{x:Null}" Background="{x:Null}" Foreground="White" TextWrapping="Wrap" FontFamily="/NayuTerm;component/#MyricaM M" FontSize="18" AcceptsReturn="True" CaretBrush="White">
                 <i:Interaction.Behaviors>
                     <l:TextBoxBindingSupportBehavior SelectionStart="{Binding CursorPosition, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </i:Interaction.Behaviors>

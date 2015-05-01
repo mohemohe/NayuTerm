@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
+﻿using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Threading;
 using Livet;
 using Livet.Commands;
 using Livet.Messaging;
@@ -65,9 +57,6 @@ namespace NayuTerm.ViewModels
          * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
          */
 
-        private ProcessStartInfo _processStartInfo;
-        private Process _cmd;
-
         #region FrontBuffer変更通知プロパティ
         private string _FrontBuffer = "";
 
@@ -93,9 +82,24 @@ namespace NayuTerm.ViewModels
                 var frontBufferLines = FrontBuffer.Count(c => c.Equals('\n')) + 1;
                 if (frontBufferLines > backBufferLines)
                 {
-                    _cmd.StandardInput.WriteLine(StdIn);
+                    var stdin = StdIn;
+                    foreach (var alias in RunCommand.AliasList)
+                    {
+                        if (stdin.StartsWith(alias.Before))
+                        {
+                            stdin = alias.After +
+                                    stdin.Substring(alias.Before.Length, stdin.Length - alias.Before.Length);
+                            break;
+                        }
+                    }
+                    if (stdin == "\r\n")
+                    {
+                        //MEMO:\r\nではなく\nのみ
+                        BackBuffer += "\n";
+                        stdin = "";
+                    }
+                    ShellHost.Shell.StandardInput.WriteLine(stdin);
                 }
-
                 RaisePropertyChanged();
             }
         }
@@ -180,42 +184,30 @@ namespace NayuTerm.ViewModels
         {
             BackBuffer += @"NayuTerm    " + Assembly.GetExecutingAssembly().GetName().Version + "\r\n";
 
-            _processStartInfo = new ProcessStartInfo
-            {
-                FileName = @"cmd.exe",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = false,
-                Arguments = @"/k /Q"
-            };
-            
-            _cmd = Process.Start(_processStartInfo);
-            _cmd.OutputDataReceived += CmdDataReceived;
-            _cmd.ErrorDataReceived += CmdDataReceived; 
-            _cmd.BeginOutputReadLine();
-
-            _cmd.StandardInput.WriteLine();
+            ShellHost.Initialize(@"cmd.exe");
+            ShellHost.Shell.OutputDataReceived += DataReceived;
+            ShellHost.Shell.ErrorDataReceived += DataReceived;
+            ShellHost.StartReadStdOut();
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
-            _cmd.Dispose();
+            ShellHost.Dispose();
+            base.Dispose();
         }
 
-        private void CmdDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
+        private void DataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
         {
             var stdout = dataReceivedEventArgs.Data;
-            var regex = new Regex(@"([a-zA-Z]:\\[^>]*)(>$)", RegexOptions.Multiline);
-            var matches = regex.Matches(stdout);
-            if (matches.Count != 0)
+            if (stdout == null)
             {
-                CurrentDir = matches[0].ToString();
-                if (CurrentDir.EndsWith(">"))
-                {
-                    CurrentDir = CurrentDir.Substring(0, CurrentDir.Length - 1);
-                }
+                return;
+            }
+            var regex = new Regex(@"(?<currentdir>[a-zA-Z]:\\[^>]*)(>$)", RegexOptions.Multiline);
+            var match = regex.Match(stdout);
+            if (match.Success)
+            {
+                CurrentDir = match.Groups["currentdir"].ToString();
                 stdout = "[" + CurrentDir + "] " + "(な・ω・ゆ)" + " $ ";
             }
             BackBuffer += stdout.Replace(CurrentDir + ">", "") + "\r\n";
@@ -223,7 +215,10 @@ namespace NayuTerm.ViewModels
 
         public void PreviewKeyDown()
         {
-            CursorPosition = FrontBuffer.LongCount() + 1;
+            if (CursorPosition < BackBuffer.LongCount())
+            {
+                CursorPosition = FrontBuffer.LongCount() + 1;
+            }
         }
     }
 }

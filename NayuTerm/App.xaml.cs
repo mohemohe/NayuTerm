@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using Livet;
 using NayuTerm.Views;
+using NayuTerm.Models;
 using StoneDot.BasicLibrary;
 
 namespace NayuTerm
@@ -22,7 +23,11 @@ namespace NayuTerm
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
+#if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+#endif
+
+            RunCommand.Initialize();
 
             _mainWindow = new MainWindow
             {

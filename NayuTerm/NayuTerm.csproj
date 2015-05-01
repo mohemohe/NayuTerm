@@ -73,7 +73,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Behaviors\AutoScrollBehavior.cs" />
-    <Compile Include="Models\CmdHost.cs" />
+    <Compile Include="Models\Alias.cs" />
+    <Compile Include="Models\RunCommand.cs" />
+    <Compile Include="Models\ShellHost.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
