@@ -33,12 +33,12 @@
 
     </i:Interaction.Triggers>
     
-    <Grid Name="TermGrid" Background="#BF000000" Width="640" Height="480">
+    <Grid Name="TermGrid" Background="{Binding BackgroundColor}" Width="640" Height="480">
         <ScrollViewer Margin="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
             <i:Interaction.Behaviors>
                 <behaviors:AutoScrollBehavior></behaviors:AutoScrollBehavior>
             </i:Interaction.Behaviors>
-            <TextBox Name="Buffer" Text="{Binding FrontBuffer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" SelectionBrush="{x:Null}" Background="{x:Null}" Foreground="White" TextWrapping="Wrap" FontFamily="/NayuTerm;component/#MyricaM M" FontSize="18" AcceptsReturn="True" CaretBrush="White">
+            <TextBox Name="Buffer" Text="{Binding FrontBuffer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" SelectionBrush="{x:Null}" Background="{x:Null}" Foreground="{Binding ForegroundColor}" TextWrapping="Wrap" FontFamily="/NayuTerm;component/#MyricaM M" FontSize="18" AcceptsReturn="True" CaretBrush="{Binding ForegroundColor}">
                 <i:Interaction.Behaviors>
                     <l:TextBoxBindingSupportBehavior SelectionStart="{Binding CursorPosition, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </i:Interaction.Behaviors>

@@ -1,0 +1,14 @@
+﻿### NayuTerm config file
+
+## colors
+backgroundARGB=#BF000000
+foregroundARGB=#FFFFFFFF
+
+## aliases
+alias cd=cd /d
+alias ls=dir
+alias ls -l=dir /a /q
+alias pwd=cd
+# reload .nayurc
+alias reload=reload
+alias source=reload

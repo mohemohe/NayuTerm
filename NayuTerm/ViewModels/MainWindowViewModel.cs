@@ -57,6 +57,8 @@ namespace NayuTerm.ViewModels
          * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
          */
 
+        private static readonly string HomeDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+
         #region FrontBuffer変更通知プロパティ
         private string _FrontBuffer = "";
 
@@ -83,7 +85,7 @@ namespace NayuTerm.ViewModels
                 if (frontBufferLines > backBufferLines)
                 {
                     var stdin = StdIn;
-                    foreach (var alias in RunCommand.AliasList)
+                    foreach (var alias in RunCommand.Environment.AliasList)
                     {
                         if (stdin.StartsWith(alias.Before))
                         {
@@ -91,6 +93,12 @@ namespace NayuTerm.ViewModels
                                     stdin.Substring(alias.Before.Length, stdin.Length - alias.Before.Length);
                             break;
                         }
+                    }
+                    if (stdin == "reload\r\n")
+                    {
+                        BackBuffer += stdin;
+                        RunCommand.Initialize();
+                        stdin = "\r";
                     }
                     if (stdin == "\r\n")
                     {
@@ -180,6 +188,40 @@ namespace NayuTerm.ViewModels
         }
         #endregion StdIn変更通知プロパティ
 
+        #region ForegroundColor変更通知プロパティ
+        private string _ForegroundColor;
+
+        public string ForegroundColor
+        {
+            get
+            { return _ForegroundColor; }
+            set
+            { 
+                if (_ForegroundColor == value)
+                    return;
+                _ForegroundColor = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion ForegroundColor変更通知プロパティ
+
+        #region BackgroundColor変更通知プロパティ
+        private string _BackgroundColor;
+
+        public string BackgroundColor
+        {
+            get
+            { return _BackgroundColor; }
+            set
+            { 
+                if (_BackgroundColor == value)
+                    return;
+                _BackgroundColor = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion BackgroundColor変更通知プロパティ
+
         public void Initialize()
         {
             BackBuffer += @"NayuTerm    " + Assembly.GetExecutingAssembly().GetName().Version + "\r\n";
@@ -188,6 +230,16 @@ namespace NayuTerm.ViewModels
             ShellHost.Shell.OutputDataReceived += DataReceived;
             ShellHost.Shell.ErrorDataReceived += DataReceived;
             ShellHost.StartReadStdOut();
+
+            RunCommand.Initialized += RunCommand_Initialized;
+            ForegroundColor = RunCommand.Environment.ForegroundColorARGB;
+            BackgroundColor = RunCommand.Environment.BackgroundColorARGB;
+        }
+
+        void RunCommand_Initialized(object sender, System.EventArgs e)
+        {
+            ForegroundColor = RunCommand.Environment.ForegroundColorARGB;
+            BackgroundColor = RunCommand.Environment.BackgroundColorARGB;
         }
 
         public new void Dispose()
@@ -208,7 +260,14 @@ namespace NayuTerm.ViewModels
             if (match.Success)
             {
                 CurrentDir = match.Groups["currentdir"].ToString();
-                stdout = "[" + CurrentDir + "] " + "(な・ω・ゆ)" + " $ ";
+                if (CurrentDir.Contains(HomeDir))
+                {
+                    stdout = "[" + CurrentDir.Replace(HomeDir, "~") + "] " + "(な・ω・ゆ)" + " $ ";
+                }
+                else
+                {
+                    stdout = "[" + CurrentDir + "] " + "(な・ω・ゆ)" + " $ ";
+                }
             }
             BackBuffer += stdout.Replace(CurrentDir + ">", "") + "\r\n";
         }
